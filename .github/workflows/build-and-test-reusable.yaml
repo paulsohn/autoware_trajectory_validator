@@ -53,9 +53,9 @@ on:
         type: string
         default: temp
         required: false
-    secrets:
-      codecov-token:
-        required: false
+    # secrets:
+    #   codecov-token:
+    #     required: false
 
 concurrency:
   group: ${{ inputs.concurrency-group }}
@@ -74,6 +74,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          ref: mirror # while we are mirroring
 
       - name: Show disk space before the tasks
         run: df -h
@@ -130,11 +131,9 @@ jobs:
         shell: bash
 
       - name: Prepare build_depends.repos file
-        uses: ./.github/actions/combine-repos-action
-        with:
-          base_file: build_depends_stable.repos
-          overlay_file: build_depends_nightly.repos
-          output_file: build_depends.repos
+        run: |
+          git checkout origin/trunk -- build_depends.repos
+        shell: bash
 
       - name: Build
         if: ${{ steps.get-self-packages.outputs.self-packages != '' }}
@@ -169,20 +168,6 @@ jobs:
           target-packages: ${{ steps.get-self-packages.outputs.self-packages }}
           build-depends-repos: build_depends.repos
 
-      - name: Upload coverage to CodeCov
-        if: ${{ steps.test.outputs.coverage-report-files != '' && inputs.upload-coverage }}
-        uses: codecov/codecov-action@v6
-        with:
-          files: ${{ steps.test.outputs.coverage-report-files }}
-          fail_ci_if_error: false
-          verbose: true
-          flags: ${{ inputs.codecov-flag }}
-          token: ${{ secrets.codecov-token }}
-          disable_search: true
-          # Disable gcov and xcode plugins, keeping only pycoverage.
-          # Default plugins: https://github.com/getsentry/prevent-cli/blob/45e518e5ca344c9fb7a5cbe596a21b7ab85a39ed/codecov-cli/README.md?plain=1#L178
-          plugins: pycoverage
-
       - name: Show disk space after the tasks
         run: df -h
 
@@ -194,6 +179,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
+        with:
+          ref: mirror # while we are mirroring
 
       - name: Show disk space before the tasks
         run: df -h
@@ -216,11 +203,9 @@ jobs:
         shell: bash
 
       - name: Prepare build_depends.repos file
-        uses: ./.github/actions/combine-repos-action
-        with:
-          base_file: build_depends_stable.repos
-          overlay_file: build_depends_nightly.repos
-          output_file: build_depends.repos
+        run: |
+          git checkout origin/trunk -- build_depends.repos
+        shell: bash
 
       - name: Run clang-tidy
         if: ${{ steps.get-self-packages.outputs.self-packages != '' }}

@@ -1,0 +1,44 @@
+repositories:
+  # core
+  core/autoware_msgs:
+    type: git
+    url: https://github.com/autowarefoundation/autoware_msgs.git
+    version: 1.11.0
+  core/autoware_adapi_msgs:
+    type: git
+    url: https://github.com/autowarefoundation/autoware_adapi_msgs.git
+    version: 1.9.1
+  core/autoware_internal_msgs:
+    type: git
+    url: https://github.com/autowarefoundation/autoware_internal_msgs.git
+    version: 1.12.1
+  core/autoware_cmake:
+    type: git
+    url: https://github.com/autowarefoundation/autoware_cmake.git
+    version: 1.2.0
+  core/autoware_utils:
+    type: git
+    url: https://github.com/autowarefoundation/autoware_utils.git
+    version: 1.7.1
+  core/autoware_msgs:
+    type: git
+    url: https://github.com/autowarefoundation/autoware_msgs.git
+    version: 1.11.0
+  core/autoware_core:
+    type: git
+    url: https://github.com/autowarefoundation/autoware_core.git
+    version: 1.7.2
+  # universe
+  universe/autoware_universe:
+    type: git
+    url: https://github.com/autowarefoundation/autoware_universe.git
+    version: main # while we are mirroring
+    subpaths: # non-official extension of https://github.com/dirk-thomas/vcstool/issues/218 . Workflow should implement this to make things work.
+      - common/autoware_deprecated_boundary_departure_checker
+      - common/autoware_traffic_light_utils
+      - common/autoware_universe_utils
+  # middleware
+  middleware/agnocast:
+    type: git
+    url: https://github.com/autowarefoundation/agnocast.git
+    version: 2.3.3
