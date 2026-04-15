@@ -1,0 +1,39 @@
+name: mirror-upstream
+
+on:
+  schedule:
+    - cron: 0 */6 * * *
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mirror-upstream:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Generate token
+        id: generate-token
+        uses: tibdex/github-app-token@v2
+        with:
+          app_id: ${{ secrets.APP_ID }}
+          private_key: ${{ secrets.PRIVATE_KEY }}
+
+      - name: Set git config
+        uses: autowarefoundation/autoware-github-actions/set-git-config@v1
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+
+      - name: Check out upstream repository
+        uses: actions/checkout@v4
+        with:
+          repository: autowarefoundation/autoware_universe
+          ref: main
+      
+      - name: Apply filter repo
+        run: |
+          sudo apt-get update && sudo apt-get install -y git-filter-repo
+          git filter-repo --path planning/autoware_trajectory_validator --path .github/ --path docs/ --path-regex '^[^/]*$' --force
+          git remote add downstream https://github.com/${{ github.repository }}.git
+          git push downstream HEAD:mirror
